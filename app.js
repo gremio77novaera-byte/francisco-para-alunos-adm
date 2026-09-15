@@ -99,7 +99,72 @@ function renderPlaylist(){$("#playlistList").innerHTML=grades.map(g=>{const p=pl
 window.savePlaylist=async(e,id)=>{e.preventDefault();const fd=new FormData(e.target),existing=playlists.find(x=>x.grade_id===id),payload={grade_id:id,app_name:fd.get("app").trim(),playlist_url:fd.get("link").trim(),enabled:true,updated_at:new Date().toISOString()};const r=existing?await sb.from("playlists").update(payload).eq("id",existing.id):await sb.from("playlists").insert(payload);if(r.error)return alert(errorText(r.error));await loadData();notify("Playlist salva.")};
 function renderGames(){$("#gamesList").innerHTML=grades.map(g=>{const w=games.find(x=>x.grade_id===g.id);return `<article class="item"><h3>${esc(g.name)}</h3><form class="form-grid" onsubmit="saveGames(event,'${g.id}')"><label class="full">Jogos da semana<textarea name="games" rows="6">${esc(w?.content||"")}</textarea></label><button class="primary">Salvar jogos</button></form></article>`}).join("")}
 window.saveGames=async(e,id)=>{e.preventDefault();const fd=new FormData(e.target),existing=games.find(x=>x.grade_id===id),payload={grade_id:id,content:fd.get("games"),enabled:true,updated_at:new Date().toISOString()};const r=existing?await sb.from("weekly_games").update(payload).eq("id",existing.id):await sb.from("weekly_games").insert(payload);if(r.error)return alert(errorText(r.error));await loadData();notify("Jogos salvos.")};
-function renderUsers(){const ps=allProfiles;$("#userCount").textContent=ps.length;$("#studentCount").textContent=ps.filter(p=>p.role==="student").length;$("#usersList").innerHTML=ps.map(p=>`<article class="item"><span class="meta">${esc(p.role||"sem cargo")}</span><h3>${esc(p.full_name||"Sem nome")}</h3><p class="muted">${p.enabled?"Ativo":"Bloqueado"}</p></article>`).join("")||`<p class="muted">Nenhum perfil encontrado.</p>`}
+function renderUsers(){
+ const ps=allProfiles;
+ $("#userCount").textContent=ps.length;
+ $("#studentCount").textContent=ps.filter(p=>p.role==="student").length;
+ $("#usersList").innerHTML=ps.map(p=>{
+  const roleName=roles.find(r=>r.id===p.role_id)?.name||p.role||"sem cargo";
+  const gradeName=grades.find(g=>g.id===p.grade_id)?.name||"";
+  const className=classes.find(c=>c.id===p.class_id)?.name||"";
+  const location=[gradeName,className].filter(Boolean).join(" • ");
+  return `<article class="item"><span class="meta">${esc(roleName)}</span><h3>${esc(p.full_name||"Sem nome")}</h3><p class="muted">${p.enabled?"Ativo":"Bloqueado"}${location?` • ${esc(location)}`:""}</p></article>`;
+ }).join("")||`<p class="muted">Nenhum perfil encontrado.</p>`
+}
+
+function userRoleOptions(){
+ return `<option value="">Selecione um cargo</option>`+roles.filter(r=>r.enabled).map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
+}
+
+function userGradeOptions(){
+ return `<option value="">Nenhum ano/série</option>`+grades.map(g=>`<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("");
+}
+
+function userClassOptions(gradeId=""){
+ const filtered=gradeId?classes.filter(c=>c.grade_id===gradeId):classes;
+ return `<option value="">Nenhuma turma</option>`+filtered.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+}
+
+function bindUserGradeClass(){
+ const grade=$("#newUserGrade");
+ const cls=$("#newUserClass");
+ if(!grade||!cls)return;
+ const refresh=()=>{cls.innerHTML=userClassOptions(grade.value);cls.disabled=!grade.value;};
+ grade.addEventListener("change",refresh);
+ refresh();
+}
+
+$("#addUserBtn").onclick=()=>{
+ openModal(`<h3>Cadastrar usuário</h3><p class="muted">A conta será criada com segurança pela Edge Function <strong>create-user</strong>.</p><form id="createUserForm" class="form-grid">
+ <label>Nome completo<input name="full_name" autocomplete="name" required placeholder="Ex.: João da Silva"></label>
+ <label>E-mail / login interno<input name="email" type="email" autocomplete="username" required placeholder="Ex.: joao@escola.local"></label>
+ <label>Senha<input name="password" type="password" minlength="6" autocomplete="new-password" required placeholder="Mínimo de 6 caracteres"></label>
+ <label>Cargo<select id="newUserRole" name="role_id" required>${userRoleOptions()}</select></label>
+ <label>Ano/série<select id="newUserGrade" name="grade_id">${userGradeOptions()}</select></label>
+ <label>Turma<select id="newUserClass" name="class_id" disabled>${userClassOptions()}</select></label>
+ <p class="muted full">Para professores, representantes e vice-representantes, escolha a turma correspondente. As regras de acesso serão controladas pelas permissões do cargo.</p>
+ <button class="primary" type="submit">Criar usuário</button>
+ </form>`,async fd=>{
+  const payload={
+   full_name:fd.get("full_name").trim(),
+   email:fd.get("email").trim().toLowerCase(),
+   password:fd.get("password"),
+   role_id:fd.get("role_id"),
+   grade_id:fd.get("grade_id")||null,
+   class_id:fd.get("class_id")||null
+  };
+  const {data,error}=await sb.functions.invoke("create-user",{body:payload});
+  if(error){
+   let detail=errorText(error);
+   if(error.context){try{const body=await error.context.json();if(body?.error)detail=body.error;}catch{}}
+   throw new Error(detail);
+  }
+  if(!data?.success)throw new Error(data?.error||"A função não confirmou a criação do usuário.");
+  await loadData();
+  notify("Usuário criado com sucesso.");
+ });
+ bindUserGradeClass();
+};
 
 function rolePermissionHtml(selected=[]){return permissions.map(p=>`<label class="permission-option"><input type="checkbox" name="perm" value="${esc(p.id)}" ${selected.includes(p.id)?"checked":""}><span><strong>${esc(p.name)}</strong><br><small>${esc(p.description||"")}</small></span></label>`).join("")}
 $("#addRoleBtn").onclick=()=>openModal(`<h3>Criar cargo</h3><form class="form-grid"><label>Nome do cargo<input name="name" placeholder="Ex.: Agente Escolar" required></label><label>Descrição<textarea name="description" rows="2"></textarea></label><div><strong>Permissões</strong><div class="permission-grid">${rolePermissionHtml()}</div></div><button class="primary">Criar cargo</button></form>`,async fd=>{
