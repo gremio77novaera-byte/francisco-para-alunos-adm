@@ -1,15 +1,13 @@
-FRANCISCO PARA ALUNOS — ADMIN V3
+ADMIN V3 CORRIGIDA
 
-V3: interface do painel conectada ao Supabase e tela de cargos/permissões.
+Esta versão corrige o fluxo de login:
+- O usuário é autenticado pelo Supabase Authentication.
+- O perfil é consultado separadamente.
+- As permissões são buscadas por IDs, sem consulta relacional aninhada.
+- Erros de autenticação/carregamento aparecem na própria tela de login.
+- Gestão (role=management) recebe acesso total.
 
-Supabase Project URL:
+Não altere a pasta icons.
+
+Project URL:
 https://ngsusjppshcxhdukwmga.supabase.co
-
-A versão usa a Publishable key no navegador.
-
-ATENÇÃO:
-- Nunca coloque Secret key/service_role no JavaScript.
-- O login do administrador usa Supabase Authentication.
-- Esta versão adiciona criação/edição de cargos e permissões.
-- A criação segura de novas contas (alunos, professores, representantes etc.) ainda será feita por uma função server-side, para não expor a chave secreta.
-- O site dos alunos e o login individual dos alunos serão conectados ao banco na próxima etapa.

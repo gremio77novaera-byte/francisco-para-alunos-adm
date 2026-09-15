@@ -19,7 +19,7 @@
       <label>Senha
         <input id="password" type="password" autocomplete="current-password" required>
       </label>
-      <button class="primary" type="submit">Entrar</button>
+      <button class="primary" id="loginButton" type="submit">Entrar</button>
       <p id="loginError" class="error"></p>
     </form>
   </div>
@@ -27,19 +27,11 @@
 
 <div id="appView" class="screen">
   <header class="topbar">
-    <div>
-      <p class="eyebrow">FRANCISCO PARA ALUNOS</p>
-      <h1>Administração</h1>
-    </div>
-    <div class="top-actions">
-      <span id="adminName" class="admin-badge"></span>
-      <button id="logoutBtn" class="ghost">Sair</button>
-    </div>
+    <div><p class="eyebrow">FRANCISCO PARA ALUNOS</p><h1>Administração</h1></div>
+    <div class="top-actions"><span id="adminName" class="admin-badge"></span><button id="logoutBtn" class="ghost">Sair</button></div>
   </header>
-
   <main class="container">
     <div id="message" class="message hidden"></div>
-
     <nav class="tabs">
       <button data-tab="turmas" class="tab" data-permission="manage_grades">🏫 Turmas</button>
       <button data-tab="avisos" class="tab" data-permission="manage_notices">📢 Avisos</button>
@@ -51,11 +43,8 @@
     </nav>
 
     <section id="tab-turmas" class="panel" data-permission="manage_grades">
-      <div class="panel-head">
-        <div><p class="eyebrow">ORGANIZAÇÃO</p><h2>Anos e séries</h2></div>
-        <button id="addGradeBtn" class="primary">+ Adicionar ano/série</button>
-      </div>
-      <p class="muted">Crie 6º, 7º, 8º, 9º, 1ª série, 2ª série, 3ª série ou qualquer outra opção. Dentro de cada ano você pode criar A, B, C etc.</p>
+      <div class="panel-head"><div><p class="eyebrow">ORGANIZAÇÃO</p><h2>Anos e séries</h2></div><button id="addGradeBtn" class="primary">+ Adicionar ano/série</button></div>
+      <p class="muted">Crie anos/séries e depois, opcionalmente, turmas A, B, C...</p>
       <div id="gradesList"><p class="muted">Carregando...</p></div>
     </section>
 
@@ -73,33 +62,23 @@
 
     <section id="tab-playlist" class="panel" data-permission="manage_playlist">
       <div class="panel-head"><div><p class="eyebrow">INTERVALO</p><h2>Playlist</h2></div></div>
-      <p class="muted">A playlist é compartilhada por todas as turmas do mesmo ano/série.</p>
-      <div id="playlistList"></div>
+      <p class="muted">Compartilhada por todas as turmas do mesmo ano/série.</p><div id="playlistList"></div>
     </section>
 
     <section id="tab-jogos" class="panel" data-permission="manage_games">
       <div class="panel-head"><div><p class="eyebrow">INTERVALO</p><h2>Jogos da semana</h2></div></div>
-      <p class="muted">Os jogos são compartilhados por todas as turmas do mesmo ano/série.</p>
-      <div id="gamesList"></div>
+      <p class="muted">Compartilhados por todas as turmas do mesmo ano/série.</p><div id="gamesList"></div>
     </section>
 
     <section id="tab-usuarios" class="panel" data-permission="manage_users">
       <div class="panel-head"><div><p class="eyebrow">ACESSOS</p><h2>Usuários</h2></div></div>
-      <p class="muted">A listagem de perfis já vem do Supabase. A criação segura de novas contas será feita por uma função no servidor.</p>
-      <div class="stats">
-        <div class="stat"><strong id="userCount">—</strong><span>Perfis no banco</span></div>
-        <div class="stat"><strong id="studentCount">—</strong><span>Alunos</span></div>
-      </div>
+      <div class="stats"><div class="stat"><strong id="userCount">—</strong><span>Perfis no banco</span></div><div class="stat"><strong id="studentCount">—</strong><span>Alunos</span></div></div>
       <div id="usersList" class="list"></div>
     </section>
 
     <section id="tab-cargos" class="panel" data-permission="manage_roles">
-      <div class="panel-head">
-        <div><p class="eyebrow">CONTROLE</p><h2>Cargos e permissões</h2></div>
-        <button id="addRoleBtn" class="primary">+ Criar cargo</button>
-      </div>
-      <p class="muted">Crie cargos da escola e defina exatamente quais recursos cada cargo pode usar.</p>
-      <div id="rolesList"></div>
+      <div class="panel-head"><div><p class="eyebrow">CONTROLE</p><h2>Cargos e permissões</h2></div><button id="addRoleBtn" class="primary">+ Criar cargo</button></div>
+      <p class="muted">Crie cargos e escolha os recursos que cada cargo pode usar.</p><div id="rolesList"></div>
     </section>
 
     <section id="tab-config" class="panel" data-permission="manage_settings">
@@ -113,12 +92,7 @@
   </main>
 </div>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-card">
-    <button id="closeModal" class="close">×</button>
-    <div id="modalBody"></div>
-  </div>
-</div>
+<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close">×</button><div id="modalBody"></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
