@@ -13,12 +13,15 @@
     <h1>FRANCISCO PARA ALUNOS</h1>
     <p class="eyebrow">PAINEL ADMINISTRATIVO</p>
     <form id="loginForm">
-      <label>Nome de usuário<input id="username" autocomplete="username" required></label>
-      <label>Senha<input id="password" type="password" autocomplete="current-password" required></label>
+      <label>E-mail do administrador
+        <input id="email" type="email" autocomplete="username" required>
+      </label>
+      <label>Senha
+        <input id="password" type="password" autocomplete="current-password" required>
+      </label>
       <button class="primary" type="submit">Entrar</button>
       <p id="loginError" class="error"></p>
     </form>
-    <small>Versão inicial de configuração. Os dados desta versão ficam neste navegador até conectarmos o banco online.</small>
   </div>
 </div>
 
@@ -28,61 +31,96 @@
       <p class="eyebrow">FRANCISCO PARA ALUNOS</p>
       <h1>Administração</h1>
     </div>
-    <button id="logoutBtn" class="ghost">Sair</button>
+    <div class="top-actions">
+      <span id="adminName" class="admin-badge"></span>
+      <button id="logoutBtn" class="ghost">Sair</button>
+    </div>
   </header>
 
   <main class="container">
+    <div id="message" class="message hidden"></div>
+
     <nav class="tabs">
-      <button data-tab="turmas" class="tab active">🏫 Turmas</button>
-      <button data-tab="avisos" class="tab">📢 Avisos</button>
-      <button data-tab="playlist" class="tab">🎵 Playlist</button>
-      <button data-tab="jogos" class="tab">🏀 Jogos</button>
-      <button data-tab="config" class="tab">⚙️ Configurações</button>
+      <button data-tab="turmas" class="tab" data-permission="manage_grades">🏫 Turmas</button>
+      <button data-tab="avisos" class="tab" data-permission="manage_notices">📢 Avisos</button>
+      <button data-tab="playlist" class="tab" data-permission="manage_playlist">🎵 Playlist</button>
+      <button data-tab="jogos" class="tab" data-permission="manage_games">🏀 Jogos</button>
+      <button data-tab="usuarios" class="tab" data-permission="manage_users">👥 Usuários</button>
+      <button data-tab="cargos" class="tab" data-permission="manage_roles">👑 Cargos</button>
+      <button data-tab="config" class="tab" data-permission="manage_settings">⚙️ Configurações</button>
     </nav>
 
-    <section id="tab-turmas" class="panel active">
-      <div class="panel-head"><div><p class="eyebrow">ORGANIZAÇÃO</p><h2>Anos e turmas</h2></div><button id="addGradeBtn" class="primary">+ Adicionar ano/série</button></div>
-      <p class="muted">Crie 6º, 7º, 8º, 9º, 1ª série, 2ª série, 3ª série ou qualquer outra opção que a escola precisar. Dentro de cada ano, você pode criar A, B, C etc.</p>
-      <div id="gradesList"></div>
+    <section id="tab-turmas" class="panel" data-permission="manage_grades">
+      <div class="panel-head">
+        <div><p class="eyebrow">ORGANIZAÇÃO</p><h2>Anos e séries</h2></div>
+        <button id="addGradeBtn" class="primary">+ Adicionar ano/série</button>
+      </div>
+      <p class="muted">Crie 6º, 7º, 8º, 9º, 1ª série, 2ª série, 3ª série ou qualquer outra opção. Dentro de cada ano você pode criar A, B, C etc.</p>
+      <div id="gradesList"><p class="muted">Carregando...</p></div>
     </section>
 
-    <section id="tab-avisos" class="panel">
-      <div class="panel-head"><div><p class="eyebrow">COMUNICAÇÃO</p><h2>Novo aviso</h2></div></div>
+    <section id="tab-avisos" class="panel" data-permission="manage_notices">
+      <div class="panel-head"><div><p class="eyebrow">COMUNICAÇÃO</p><h2>Publicar aviso</h2></div></div>
       <form id="noticeForm" class="form-grid">
         <label>Título<input id="noticeTitle" required></label>
         <label>Destinatários<select id="noticeTarget" required></select></label>
         <label class="full">Texto<textarea id="noticeText" rows="5" required></textarea></label>
-        <label class="full">Link da imagem (opcional)<input id="noticeImage" placeholder="https://..."></label>
+        <label class="full">Link da imagem JPG (opcional)<input id="noticeImage" placeholder="https://..."></label>
         <button class="primary" type="submit">Publicar aviso</button>
       </form>
       <div id="noticesList" class="list"></div>
     </section>
 
-    <section id="tab-playlist" class="panel">
+    <section id="tab-playlist" class="panel" data-permission="manage_playlist">
       <div class="panel-head"><div><p class="eyebrow">INTERVALO</p><h2>Playlist</h2></div></div>
-      <p class="muted">A playlist é por ano/série, não por turma. Assim 6º A, 6º B e 6º C podem usar a mesma playlist do 6º.</p>
+      <p class="muted">A playlist é compartilhada por todas as turmas do mesmo ano/série.</p>
       <div id="playlistList"></div>
     </section>
 
-    <section id="tab-jogos" class="panel">
+    <section id="tab-jogos" class="panel" data-permission="manage_games">
       <div class="panel-head"><div><p class="eyebrow">INTERVALO</p><h2>Jogos da semana</h2></div></div>
       <p class="muted">Os jogos são compartilhados por todas as turmas do mesmo ano/série.</p>
       <div id="gamesList"></div>
     </section>
 
-    <section id="tab-config" class="panel">
-      <div class="panel-head"><div><p class="eyebrow">ACESSO</p><h2>Configurações</h2></div></div>
+    <section id="tab-usuarios" class="panel" data-permission="manage_users">
+      <div class="panel-head"><div><p class="eyebrow">ACESSOS</p><h2>Usuários</h2></div></div>
+      <p class="muted">A listagem de perfis já vem do Supabase. A criação segura de novas contas será feita por uma função no servidor.</p>
+      <div class="stats">
+        <div class="stat"><strong id="userCount">—</strong><span>Perfis no banco</span></div>
+        <div class="stat"><strong id="studentCount">—</strong><span>Alunos</span></div>
+      </div>
+      <div id="usersList" class="list"></div>
+    </section>
+
+    <section id="tab-cargos" class="panel" data-permission="manage_roles">
+      <div class="panel-head">
+        <div><p class="eyebrow">CONTROLE</p><h2>Cargos e permissões</h2></div>
+        <button id="addRoleBtn" class="primary">+ Criar cargo</button>
+      </div>
+      <p class="muted">Crie cargos da escola e defina exatamente quais recursos cada cargo pode usar.</p>
+      <div id="rolesList"></div>
+    </section>
+
+    <section id="tab-config" class="panel" data-permission="manage_settings">
+      <div class="panel-head"><div><p class="eyebrow">ACESSO</p><h2>Configurações administrativas</h2></div></div>
       <form id="adminForm" class="form-grid">
-        <label>Nome de usuário do administrador<input id="adminUsername" required></label>
+        <label>Nome do administrador<input id="adminFullName" required></label>
         <label>Nova senha<input id="adminPassword" type="password" minlength="6" placeholder="Deixe vazio para não alterar"></label>
-        <button class="primary" type="submit">Salvar acesso</button>
+        <button class="primary" type="submit">Salvar configurações</button>
       </form>
-      <div class="warning"><strong>Importante:</strong> esta versão é um painel de protótipo local. Antes de entregar o acesso à gestão, vamos conectar o painel a um banco online e autenticação segura para que as alterações sejam compartilhadas com todos os alunos.</div>
     </section>
   </main>
 </div>
 
-<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close">×</button><div id="modalBody"></div></div></div>
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <button id="closeModal" class="close">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
