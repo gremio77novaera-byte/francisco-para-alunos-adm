@@ -1,6 +1,6 @@
 const SUPABASE_URL="https://bmkhzgkoicrqfauxkopt.supabase.co";
 
-sb_publishable_1d3RjPD_YYHKV3lIGHFyFw_uHPIehil
+const SUPABASE_PUBLISHABLE_KEY="COLE_AQUI_A_SUA_PUBLISHABLE_KEY";
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
@@ -1565,6 +1565,7 @@ function renderRoles(){
       }
 
       •
+
       ${r.enabled?"ativo":"desativado"}
 
       </span>
